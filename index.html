@@ -507,7 +507,11 @@ const KART={
 const DECAL={normal:{r:[-12.15,14.3,2.4],t:[5,10.3,3.4],d:[-6,9]},esporte:{r:[-14.15,11,2.2],t:[4,8.3,3],d:[-8,7]},tanque:{r:[-10.15,17,2.6],t:[12,14.3,4]},monstro:{r:[-16.1,14,3.6],t:[8,18.3,4],d:[-6,18]},jipe:{r:[-18.1,10.5,3.2],t:[6,15.3,4],d:[-5,15]},formula:{r:[-20.1,4.5,2],t:[12,7.3,2.6],d:[-6,6]},foguete:{t:[6,11.3,3.2],d:[-6,11]}};
 function crossPts(s){const a=s*.2,b=s*.55;return[[a,a],[s,b],[s,-b],[a,-a],[b,-s],[-b,-s],[-a,-a],[-s,-b],[-s,b],[-a,a],[-b,s],[b,s]]}
 const SASH={};function sashOf(type){if(SASH[type])return SASH[type];const m=(KART[type]||KART.normal).find(p=>p.k==='b'&&p.col==='b');let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;for(const q of m.fp){x0=Math.min(x0,q[0]);x1=Math.max(x1,q[0]);y0=Math.min(y0,q[1]);y1=Math.max(y1,q[1])}
- const cx=(x0+x1)/2,dx=(y1-y0)*.6,w=Math.max(4,(x1-x0)*.16);return SASH[type]={fp:[[cx+dx/2-w/2,y0-.35],[cx+dx/2+w/2,y0-.35],[cx-dx/2+w/2,y1+.35],[cx-dx/2-w/2,y1+.35]],h0:m.h0+.3,h1:m.h1+.45}}
+ const cx=x0+(x1-x0)*.6,dx=(y1-y0)*.75,w=Math.max(5,(x1-x0)*.22);return SASH[type]={m,top:[[cx+dx/2-w/2,y0],[cx+dx/2+w/2,y0],[cx-dx/2+w/2,y1],[cx-dx/2-w/2,y1]],L:[cx+dx/2-w/2,cx+dx/2+w/2,y0],R:[cx-dx/2-w/2,cx-dx/2+w/2,y1],h0:m.h0,h1:m.h1}}
+function drawSash(g,c,W,type){const sh=sashOf(type),K='#151515';
+ if(c.h>sh.h1)fillPoly(g,c,sh.top.map(q=>{const w=W(q[0],q[1]);return toCam(c,w[0],w[1],sh.h1+.04)}),K);
+ for(const[s0,s1,yy,ny]of[[...sh.L,-1],[...sh.R,1]]){const n=W.dir(0,ny),w0=W((s0+s1)/2,yy);if(n[0]*(w0[0]-c.x)+n[1]*(w0[1]-c.y)>=0)continue;const y=yy+ny*.06;
+  const P=(x,h)=>{const w=W(x,y);return toCam(c,w[0],w[1],h)};fillPoly(g,c,[P(s0,sh.h0),P(s1,sh.h0),P(s1,sh.h1),P(s0,sh.h1)],K)}}
 const MASCOTS={capacete:{n:'Capacete'},ursinho:{n:'Ursinho'},cachorro:{n:'Cachorro'},gato:{n:'Gato'},panda:{n:'Panda',price:150},coelho:{n:'Coelho',price:150},raposa:{n:'Raposa',price:200},pinguim:{n:'Pinguim',price:200},sapo:{n:'Sapo',price:200},leao:{n:'Leão',price:300},robo:{n:'Robô',price:350},dino:{n:'Dino',gems:15}};
 const MASC_COL={capacete:null,ursinho:'#8d5a3b',cachorro:'#c08552',gato:'#ff9f43',panda:'#f5f5f5',coelho:'#f5f5f5',raposa:'#f57c00',pinguim:'#263238',sapo:'#66bb6a',leao:'#fbc02d',robo:'#90a4ae',dino:'#43a047'};
 function ell(g,x,y,rx,ry,col,rot){g.fillStyle=col;g.beginPath();g.ellipse(x,y,Math.max(.1,rx),Math.max(.1,ry),rot||0,0,7);g.fill()}
@@ -556,7 +560,7 @@ function drawKart3D(g,c,car,x,y,a){
  const list=[];
  for(const p of parts){let cx,cy;if(p.k==='b'){cx=0;cy=0;for(const q of p.fp){cx+=q[0];cy+=q[1]}cx/=p.fp.length;cy/=p.fp.length}else if(p.k==='w'){cx=p.x;cy=(p.y0+p.y1)/2}else{cx=p.x;cy=0}
   const w=W(cx,cy),q=toCam(c,w[0],w[1],p.k==='h'?p.h:0);list.push({z:q[1]+(p.k==='h'?-2:0),p,q});
-  if(malta&&p.k==='b'&&p.col==='b'&&!list.sashed){list.sashed=1;const sh=sashOf(car.type);list.push({z:q[1]-.6,p:{k:'b',fp:sh.fp,h0:sh.h0,h1:sh.h1,col:'#151515'},q})}}
+}
  list.sort((u,v)=>v.z-u.z);
  let decDone=!malta;const decals=()=>{decDone=true;const D=DECAL[car.type]||DECAL.normal;
   if(D.r){const[xr,hc,sz]=D.r,n=W.dir(-1,0),w0=W(xr,0);if(n[0]*(w0[0]-c.x)+n[1]*(w0[1]-c.y)<0){fillPoly(g,c,crossPts(sz).map(([u,v])=>{const w=W(xr,u);return toCam(c,w[0],w[1],hc+v)}),'#d50000')}}
@@ -566,7 +570,7 @@ function drawKart3D(g,c,car,x,y,a){
     if(nx>0)fillPoly(g,c,crossPts(1.7).map(([u,v])=>P(u-1.5,dh+6.2+v)),'#d50000')}}};
  const colOf=k=>k==='b'?col:k==='s'?sc(col,-60):k==='u'?(car.suit||'#eceff1'):k==='d'?sc(col,-90):k==='k'?'#2a2a2a':k;
  for(const it of list){const p=it.p;
-  if(p.k==='b')drawBox(g,c,p.fp.map(q=>W(q[0],q[1])),p.h0,p.h1,colOf(p.col),p.top);
+  if(p.k==='b'){drawBox(g,c,p.fp.map(q=>W(q[0],q[1])),p.h0,p.h1,colOf(p.col),p.top);if(malta&&p===sashOf(car.type).m)drawSash(g,c,W,car.type)}
   else if(p.k==='w')drawWheel3D(g,c,W,p);
   else{if(!decDone)decals();const q=it.q;if(q[1]<c.near+2)continue;const s=c.F/q[1];const hz=ca*c.fx+sa*c.fy,hx=ca*c.rx+sa*c.ry;drawHead(g,c.cx+q[0]*s,c.hz+(c.h-q[2])*s,p.r*s,car.mascot||'capacete',malta?'#151515':col,hx,hz)}}
  if(!decDone)decals();
