@@ -163,7 +163,7 @@ input.name{width:100%;max-width:420px;font-size:22px;font-weight:900;text-align:
 
 <div id="sLivre" class="screen">
  <h2>⭐ ESTILO LIVRE</h2>
- <div class="legend">90 segundos pra pegar tudo que der!<br>🪙 moeda • 💎 diamante (fora da pista) • 🔧 conserta • ⚡ turbo • ⏱️ +tempo<br>Pegue moedas seguidas para fazer COMBO!</div>
+ <div class="legend">90 segundos pra pegar tudo que der!<br>💰 moeda • 💎 diamante (fora da pista) • 🔧 conserta • ⚡ turbo • ⏱️ +tempo<br>Pegue moedas seguidas para fazer COMBO!</div>
  <div id="livreList" style="width:100%;display:flex;flex-direction:column;align-items:center"></div>
  <button class="btn gray" onclick="go('sMenu')">⬅️ VOLTAR</button>
 </div>
@@ -193,7 +193,7 @@ input.name{width:100%;max-width:420px;font-size:22px;font-weight:900;text-align:
 <div id="sGaragem" class="screen">
  <h2>🎨 GARAGEM E LOJA</h2>
  <div class="wallet" id="garWallet"></div>
- <div class="legend">Ganhe 🪙 moedas e 💎 diamantes correndo para comprar cores, karts e rastros!</div>
+ <div class="legend">Ganhe 💰 moedas e 💎 diamantes correndo para comprar cores, karts e rastros!</div>
  <canvas id="garCar" width="480" height="300"></canvas>
  <h3>NOME DO PILOTO</h3>
  <input class="name" id="garName" maxlength="10" autocomplete="off">
@@ -691,7 +691,7 @@ function thumb(i){
  g.save();g.scale(s,s);g.lineJoin='round';g.lineWidth=P.roadW+40;g.strokeStyle=m.curbA;g.stroke(P.road);g.lineWidth=P.roadW+10;g.strokeStyle=m.road;g.stroke(P.road);
  g.fillStyle='#fff';g.beginPath();g.arc(P.path[0][0],P.path[0][1],90,0,7);g.fill();g.restore();return c;
 }
-const walletHTML=()=>`<span>🪙 ${save.coins}</span><span>💎 ${save.gems}</span>`;
+const walletHTML=()=>`<span>💰 ${save.coins}</span><span>💎 ${save.gems}</span>`;
 function mapCard(i,label,sub,extra,onclick,locked){const b=document.createElement('button');b.className='card'+(locked?' locked':'');b.appendChild(thumb(i));const d=document.createElement('div');d.innerHTML=`<b>${label}</b><small>${sub}</small>${extra||''}`;b.appendChild(d);b.onclick=onclick;return b}
 function buildFases(){
  const cl=$('cupsList');cl.innerHTML='';
@@ -777,11 +777,11 @@ function ownedColor(i){const c=COLORS[i];if(!c)return false;if(!c.price&&!c.need
 function ownedType(k){const t=TYPES[k];return !!t&&((!t.price&&!t.gems)||save.owned.k.includes(k))}
 function ownedTrail(k){const t=TRAILS[k];return !!t&&((!t.price&&!t.gems)||save.owned.t.includes(k))}
 let pendingBuy='';
-function buy(key,cost,cur,onOk){const ic=cur==='coins'?'🪙':'💎';
+function buy(key,cost,cur,onOk){const ic=cur==='coins'?'💰':'💎';
  if(save[cur]<cost){toast(`Faltam ${cost-save[cur]} ${ic}! Corra para ganhar mais.`);beep(150,.15);pendingBuy='';return}
  if(pendingBuy!==key){pendingBuy=key;toast(`Toque de novo para comprar por ${cost} ${ic}`);beep(500,.05);return}
  pendingBuy='';save[cur]-=cost;onOk();persist();tune([700,900,1200],70);toast('🎉 Comprado!');buildGarage()}
-const priceTag=o=>o.price?`🪙${o.price}`:o.gems?`💎${o.gems}`:'';
+const priceTag=o=>o.price?`💰${o.price}`:o.gems?`💎${o.gems}`:'';
 function buildGarage(){
  $('garWallet').innerHTML=walletHTML();
  const nm=$('garName');nm.value=save.name;
@@ -1072,7 +1072,7 @@ const ITEM_KEYS=Object.keys(ITEM_EMO);
 function updateHUD(){
  if(++G.hudTick%3)return;
  const p=G.player,N=G.P.N;
- $('hudName').textContent=save.name+(G.mode==='race'?' 🪙'+G.coins:'');
+ $('hudName').textContent=save.name+(G.mode==='race'?' 💰'+G.coins:'');
  if(G.mode==='race'){$('hudV1').textContent=Math.min(LAPS,Math.max(1,Math.floor(p.prog/N)+1))+'/'+LAPS;$('hudV2').textContent=(G.place||rankOf(p))+'º';
   const ib=$('itemBtn');
   if(p.roll>0){ib.textContent=ITEM_EMO[ITEM_KEYS[Math.floor(G.frame/4)%ITEM_KEYS.length]];ib.className='cbtn';}
@@ -1271,12 +1271,12 @@ function showResult(){
   const dead=p.hp<=0;
   h+=`<h2>${dead?'💥 DESTRUÍDO!':'⏱️ FIM DO TEMPO!'}</h2><div style="font-size:60px;font-weight:900;color:#ffd23f;text-shadow:0 4px 0 #000">${g.score}</div><div>pontos</div>`;
   if(rec&&g.score>0)h+=`<div class="banner">🏅 NOVO RECORDE!</div>`;
-  h+=`<div class="resbox">🪙 Moedas: <b>${g.coins}</b><br>💎 Diamantes: <b>${g.gems}</b><br>Recorde em ${def.nome}: <b>${bestFree(g.mi)}</b></div>`;
+  h+=`<div class="resbox">💰 Moedas: <b>${g.coins}</b><br>💎 Diamantes: <b>${g.gems}</b><br>Recorde em ${def.nome}: <b>${bestFree(g.mi)}</b></div>`;
   h+=`<button class="btn big green" onclick="startGame('free',${miArg(g.mi)})">🔁 JOGAR DE NOVO</button>`;
   if(rec&&g.score>0)setTimeout(confetti,100);
  }
  save.coins+=earnC;save.gems+=earnG;persist();
- h=`<div class="earn">+${earnC} 🪙${earnG?`  +${earnG} 💎`:''}</div>`+h;
+ h=`<div class="earn">+${earnC} 💰${earnG?`  +${earnG} 💎`:''}</div>`+h;
  h+=`<div class="wallet">${walletHTML()}</div><button class="btn gray" onclick="toMenu()">🏠 MENU</button>`;
  el.innerHTML=h;el.classList.add('on');
 }
